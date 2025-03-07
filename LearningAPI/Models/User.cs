@@ -24,5 +24,10 @@ namespace LearningAPI.Models
 
         [StringLength(50)]
         public required string Password { get; set; }
+
+        public bool canViewUser { get; set; }
+        public bool canAddUser { get; set; }
+        public bool canUpdateUser { get; set; }
+        public bool canDeleteUser { get; set; }
     }
 }

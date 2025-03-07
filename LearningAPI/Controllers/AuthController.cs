@@ -72,5 +72,32 @@ namespace LearningAPI.Controllers
 
             return Ok(new { message = "User has been added" });
         }
+
+        [HttpPost("registerr")]
+        public async Task<IActionResult> Registerr([FromBody] RegisterRequest request)
+        {
+            var userExists = await _context.Users.AnyAsync(x => x.Email == request.Email);
+
+            var hashedPassword = _jwtService.HashPassword(request.Password);
+
+            if (userExists)
+                return Unauthorized("Already Exist");
+
+            var user = new User
+            {
+                Email = request.Email,
+                Password = hashedPassword,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Age = request.Age,
+                IsActive = false,
+                Role = Role.Employee,
+            };
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "User has been added" });
+        }
     }
 }

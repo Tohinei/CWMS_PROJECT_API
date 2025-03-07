@@ -18,7 +18,11 @@ namespace LearningAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<User>>> GetAll() => Ok(await _userService.GetAll());
+        public async Task<ActionResult<List<User>>> GetAll()
+        {
+            var users = await _userService.GetAll();
+            return Ok(users);
+        }
 
         [HttpGet("/{id}")]
         public async Task<ActionResult<User>> GetById(int id) => Ok(await _userService.GetById(id));
@@ -31,16 +35,58 @@ namespace LearningAPI.Controllers
         public async Task<ActionResult> Add(User user)
         {
             if (user == null)
-                throw new ArgumentNullException(nameof(user));
+                return Ok(
+                    new
+                    {
+                        status = 500,
+                        type = "error",
+                        message = "user did not added",
+                        data = new { },
+                    }
+                );
+
             await _userService.Add(user);
-            return Ok($"New user with id = {user.Id} has been added");
+
+            return Ok(
+                new
+                {
+                    status = 200,
+                    type = "sucess",
+                    message = "user has been added successfully",
+                    data = user,
+                }
+            );
         }
 
         [HttpPut]
         public async Task<ActionResult> Update(User user)
         {
-            await _userService.Update(user);
-            return Ok($"User with id = {user.Id} has been updated");
+            try
+            {
+                await _userService.Update(user);
+                return Ok(
+                    new
+                    {
+                        status = 200,
+                        type = "sucess",
+                        message = "user has been updated successfully",
+                        data = user,
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        status = 500,
+                        type = "error",
+                        message = e.Message,
+                        data = new { },
+                    }
+                );
+            }
         }
 
         [HttpDelete("{id}")]
